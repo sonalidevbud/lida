@@ -46,7 +46,7 @@ def read_dataframe(file_location):
         except ValueError:
             df = pd.read_json(file_location, orient='table')
     elif file_extension == 'csv':
-        df = pd.read_csv(file_location)
+        df = pd.read_csv(file_location, low_memory=False)
     elif file_extension in ['xls', 'xlsx']:
         df = pd.read_excel(file_location)
     elif file_extension == 'parquet':

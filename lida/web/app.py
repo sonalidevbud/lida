@@ -14,6 +14,7 @@ from ..components import Manager
 
 # instantiate model and generator
 textgen = llm()
+# textgen = llm(provider="hf", model="TheBloke/Llama-2-7b-chat-fp16", device_map="auto")
 logger = logging.getLogger(__name__)
 api_docs = os.environ.get("LIDA_API_DOCS", "False") == "True"
 
@@ -246,8 +247,9 @@ async def upload_file(file: UploadFile):
 
         # summarize
         textgen_config = TextGenerationConfig(n=1, temperature=0)
+        cleaned_data = lida.preprocess(file_location)
         summary = lida.summarize(
-            data=file_location,
+            data=cleaned_data,
             file_name=file.filename,
             summary_method="default",
             textgen_config=textgen_config)

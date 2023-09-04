@@ -13,6 +13,7 @@ import pandas as pd
 from llmx import llm, TextGenerator
 from lida.datamodel import Goal, Summary, TextGenerationConfig
 from lida.utils import read_dataframe
+from ..components.preprocessor import Preprocessor
 from ..components.summarizer import Summarizer
 from ..components.goal import GoalExplorer
 from ..components.executor import ChartExecutor
@@ -38,6 +39,7 @@ class Manager(object):
         self.recommender = VizRecommender()
         self.data = None
         self.infographer = None
+        self.preprocessor = Preprocessor()
 
     def check_textgen(self, config: TextGenerationConfig):
         """Check if self.text_gen is the same as the config passed in. If not, update self.text_gen"""
@@ -321,3 +323,8 @@ class Manager(object):
             self.infographer = Infographer()
         return self.infographer.generate(
             visualization=visualization, n=n, style_prompt=style_prompt, return_pil=return_pil)
+
+    def preprocess(self, data: Union[pd.DataFrame, str]) -> pd.DataFrame:
+        """Preprocesses data from a pandas DataFrame or a file location"""
+        cleaned_data = self.preprocessor.preprocess(data=data)
+        return cleaned_data

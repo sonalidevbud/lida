@@ -328,3 +328,16 @@ class Manager(object):
         """Preprocesses data from a pandas DataFrame or a file location"""
         cleaned_data = self.preprocessor.preprocess(data=data)
         return cleaned_data
+
+    def shorten_column_names(self, data: pd.DataFrame, summary: dict, textgen_config: TextGenerationConfig) -> pd.DataFrame:
+        """Shorten long column names to fit context length of llm"""
+        column_mapping = self.preprocessor.get_short_column_names(
+            summary=summary,
+            text_gen=self.text_gen,
+            textgen_config=textgen_config
+        )
+        data = self.preprocessor.modify_column_names(df=data, column_mapping=column_mapping)
+        for field in summary['fields']:
+            if field['column'] in column_mapping:
+                field['column'] = column_mapping[field['column']]
+        return summary

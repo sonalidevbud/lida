@@ -154,3 +154,50 @@ class Summarizer():
         data_summary["file_name"] = file_name
 
         return data_summary
+
+    def summarizer_2(self, profile_json = None):
+        profile = json.loads(profile_json)
+        new_payload = {"table_summary": {}}
+
+        new_payload["table_summary"]["rows_number"] = profile["table"]["n"]
+        new_payload["table_summary"]["column_number"] = profile["table"]["n_var"]
+        new_payload["table_summary"]["rows_with_missing_values"] = profile["table"]["n_cells_missing"]
+        new_payload["table_summary"]["columns_with_missing_values"] = profile["table"]["n_vars_with_missing"]
+        new_payload["table_summary"]["columns_with_all_missing"]  = profile["table"]["n_vars_all_missing"]
+        new_payload["table_summary"]["columns_with_missing_values"] = profile["table"]["n_vars_with_missing"]
+        new_payload["table_summary"]["column_summary"] = {}
+
+        new_payload["columns"] = []
+        new_payload["table_summary"]["sample_data"] = self.df.head(5).to_dict()
+
+        if "correlations" in profile:
+            new_payload["correlations"] = profile["correlations"]
+
+        for key, value in profile["variables"].items():
+            column = {
+                "column_name": key,
+                "rows_in_column_with_value": value["count"],
+                "rows_in_column_with_missing_value": value["n_missing"],
+                "column_value_type": value["type"],
+                "is_sort_possible_in_column": value["ordering"],
+                "possible_unique_values_in_column": value["value_counts_without_nan"]
+            }
+
+            new_payload["table_summary"]["column_summary"][key] = value["type"]
+
+            if "min" in value.keys():
+                column["min"] = value["min"]
+
+            if "max" in value.keys():
+                column["max"] = value["max"]
+
+            if "sum" in value.keys():
+                column["sum"] = value["sum"]
+
+            if "n_category" in value.keys():
+                column["n_category"] = value["n_category"]
+
+
+            new_payload["columns"].append(column)
+
+        return new_payload

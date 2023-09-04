@@ -46,7 +46,7 @@ def read_dataframe(file_location):
         except ValueError:
             df = pd.read_json(file_location, orient='table')
     elif file_extension == 'csv':
-        df = pd.read_csv(file_location, low_memory=False)
+        df = pd.read_csv(file_location)
     elif file_extension in ['xls', 'xlsx']:
         df = pd.read_excel(file_location)
     elif file_extension == 'parquet':
@@ -80,6 +80,31 @@ def read_dataframe(file_location):
             raise ValueError('Unsupported file type')
 
     return cleaned_df
+
+def naive_read_dataframe(file_location):
+    file_extension = file_location.split('.')[-1]
+    if file_extension == 'json':
+        try:
+            df = pd.read_json(file_location, orient='records')
+        except ValueError:
+            df = pd.read_json(file_location, orient='table')
+    elif file_extension == 'csv':
+        df = pd.read_csv(file_location)
+    elif file_extension in ['xls', 'xlsx']:
+        df = pd.read_excel(file_location)
+    elif file_extension == 'parquet':
+        df = pd.read_parquet(file_location)
+    elif file_extension == 'feather':
+        df = pd.read_feather(file_location)
+    elif file_extension == "tsv":
+        df = pd.read_csv(file_location, sep="\t")
+    else:
+        raise ValueError('Unsupported file type')
+    return df
+
+
+def save_dataframe(df, file_location):
+    df.to_csv(file_location, index=False)
 
 
 def file_to_df(file_location: str):
@@ -200,3 +225,30 @@ def clean_code_snippet(markdown_string):
         return code_snippet.group(1)
     else:
         return markdown_string
+
+
+def check_duplicates(array: list):
+    """Check if there are any duplicate values in a list"""
+    if len(array) == len(set(array)):
+        return False
+    else:
+        return True
+
+def handle_duplicates(array: list):
+    """Handle duplicate values in a list"""
+    new_array = array
+    if len(array) != len(set(array)):
+        new_array = []
+        repeat_dict = {}
+        count = 0
+        for each in array:
+            if each not in new_array:
+                new_array.append(each)
+            else:
+                if each in repeat_dict:
+                    count = repeat_dict[each] + 1
+                    repeat_dict[each] = count
+                else:
+                    count = 1
+                new_array.append(f'{each} {count}')
+    return new_array

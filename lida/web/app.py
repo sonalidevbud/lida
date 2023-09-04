@@ -10,6 +10,7 @@ import traceback
 from llmx import llm, providers
 from ..datamodel import GoalWebRequest, TextGenerationConfig, UploadUrl, VisualizeEditWebRequest, VisualizeEvalWebRequest, VisualizeExplainWebRequest, VisualizeRecommendRequest, VisualizeRepairWebRequest, VisualizeWebRequest, InfographicsRequest
 from ..components import Manager
+from ..utils import save_dataframe
 
 
 # instantiate model and generator
@@ -248,11 +249,13 @@ async def upload_file(file: UploadFile):
         # summarize
         textgen_config = TextGenerationConfig(n=1, temperature=0)
         cleaned_data = lida.preprocess(file_location)
+        save_dataframe(cleaned_data, file_location)
         summary = lida.summarize(
             data=cleaned_data,
             file_name=file.filename,
             summary_method="default",
             textgen_config=textgen_config)
+        # summary = lida.shorten_column_names(cleaned_data, summary, textgen_config)
         return {"status": True, "summary": summary, "data_filename": file.filename}
     except Exception as exception_error:
         logger.error(f"Error processing file: {str(exception_error)}")

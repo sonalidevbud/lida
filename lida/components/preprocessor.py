@@ -92,7 +92,10 @@ class Preprocessor():
         column_mapping = dict(zip(column_names, first_row_values))
         data = self.modify_column_names(data, column_mapping)
         data.drop(index=data.index[0], inplace=True)
-
+        # with open('col_names.json', 'w') as f:
+        #     cols = data.columns.tolist()
+        #     cols_map = dict(zip(cols, cols))
+        #     json.dump(cols_map, f)
         # alter column names
         with open('cleaned_col_names.json', 'r') as f:
             short_names = json.load(f)
@@ -105,6 +108,7 @@ class Preprocessor():
                 else:
                     specific_col_map[column] = short_names[column] 
         data = self.modify_column_names(data, specific_col_map)
+        data.dropna(axis=1, how='all', inplace=True)
         print(f"Data shape after dropping more columns >> {data.shape}")
         data = self.fill_na_by_dtype(data)
         self.cleaned_data = data
